@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeRunner Pro - Ultimate Online Compiler</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/php/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
     <style>
         :root {
             --primary: #6366f1;
@@ -432,25 +447,14 @@
             overflow: hidden;
         }
 
-        .code-editor {
-            width: 100%;
+        .CodeMirror {
             height: 450px;
             font-family: 'Fira Code', monospace;
             font-size: 14px;
-            padding: 20px;
-            border: none;
             border-radius: 10px;
-            resize: vertical;
             background: var(--code-bg);
             color: #e2e8f0;
             line-height: 1.6;
-            tab-size: 4;
-            outline: none;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .code-editor:focus {
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 0 2px var(--primary);
         }
 
         /* Output section */
@@ -523,73 +527,6 @@
             font-size: 0.85rem;
             color: var(--gray);
             font-family: 'Fira Code', monospace;
-        }
-
-        /* Features section */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .feature-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 16px;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(to bottom, var(--primary), var(--secondary));
-            transition: all 0.4s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-        }
-
-        .feature-card:hover::before {
-            width: 100%;
-            opacity: 0.1;
-        }
-
-        .feature-icon {
-            font-size: 2.2rem;
-            margin-bottom: 20px;
-            color: var(--primary);
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover .feature-icon {
-            transform: scale(1.2);
-            color: var(--secondary);
-        }
-
-        .feature-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: white;
-            font-weight: 600;
-        }
-
-        .feature-card p {
-            color: var(--gray);
-            font-size: 0.95rem;
-            line-height: 1.7;
         }
 
         /* Loading state */
@@ -666,11 +603,7 @@
                 width: 100%;
             }
 
-            .feature-card {
-                padding: 25px;
-            }
-
-            .code-editor, .output {
+            .CodeMirror, .output {
                 height: 350px;
             }
         }
@@ -774,11 +707,85 @@
         .footer a:hover {
             color: var(--secondary);
         }
+
+        /* Theme toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+
+        /* Dark mode */
+        .dark-mode {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --primary-light: #a78bfa;
+            --secondary: #06d6a0;
+            --dark: #111827;
+            --darker: #030712;
+            --light: #f9fafb;
+            --gray: #9ca3af;
+            --dark-gray: #374151;
+            --code-bg: #1f2937;
+            --glass-bg: rgba(17, 24, 39, 0.8);
+            --card-bg: rgba(31, 41, 55, 0.6);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Animated particles background -->
     <div class="particles" id="particles"></div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
 
     <!-- Splash Screen -->
     <div class="splash-screen" id="splashScreen">
@@ -883,10 +890,13 @@ Try these examples:
                     <button class="btn btn-danger" onclick="clearCode()">
                         <i class="fas fa-trash-alt"></i> Clear
                     </button>
+                    <button class="btn btn-secondary" onclick="saveCode()">
+                        <i class="fas fa-save"></i> Save
+                    </button>
                 </div>
 
                 <div class="code-editor-container">
-                    <textarea class="code-editor" id="codeEditor" placeholder="// Write your code here..."><?php
+                    <textarea id="codeEditor" style="display: none;"><?php
 // Modern PHP Example (PHP 8.0+)
 declare(strict_types=1);
 
@@ -965,40 +975,6 @@ echo "\n\nTeam lead first skill: " . ($team['lead']?->skills[0] ?? 'Unknown');
             </section>
         </main>
 
-        <section class="features">
-            <article class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <h3>Lightning Fast Execution</h3>
-                <p>Our cloud-based compiler executes your code in milliseconds with optimized performance and minimal latency.</p>
-            </article>
-
-            <article class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-language"></i>
-                </div>
-                <h3>Multi-Language Support</h3>
-                <p>Supports 10+ programming languages including Python, Java, C++, JavaScript, PHP and more.</p>
-            </article>
-
-            <article class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-code"></i>
-                </div>
-                <h3>Smart Code Editor</h3>
-                <p>Advanced editor with syntax highlighting, auto-completion, and error detection.</p>
-            </article>
-
-            <article class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3>Secure Sandbox</h3>
-                <p>Your code runs in a completely isolated environment for maximum security.</p>
-            </article>
-        </section>
-
         <footer class="footer">
             <p>© 2023 CodeRunner Pro | Built with <i class="fas fa-heart" style="color: var(--error);"></i> by developers for developers</p>
             <p>Need help? <a href="#" onclick="alert('Contact support@coderunner.pro')">Contact our support team</a></p>
@@ -1011,33 +987,8 @@ echo "\n\nTeam lead first skill: " . ($team['lead']?->skills[0] ?? 'Unknown');
     </div>
 
     <script>
-        // Create animated particles
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            const particleCount = 20;
-
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-
-                // Random size between 5 and 15px
-                const size = Math.random() * 10 + 5;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-
-                // Random position
-                particle.style.left = `${Math.random() * 100}%`;
-                particle.style.top = `${Math.random() * 100}%`;
-
-                // Random animation duration between 10 and 25s
-                particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
-
-                // Random delay
-                particle.style.animationDelay = `${Math.random() * 5}s`;
-
-                particlesContainer.appendChild(particle);
-            }
-        }
+        // Initialize CodeMirror editor
+        let codeEditor;
 
         // Sample codes for different languages
         const sampleCodes = {
@@ -1462,11 +1413,78 @@ echo "\n\nTeam lead first skill: " . ($team['lead']?->skills[0] ?? 'Unknown');
 ?>`
         };
 
+        // Initialize CodeMirror editor
+        function initCodeEditor() {
+            const textarea = document.getElementById('codeEditor');
+            codeEditor = CodeMirror.fromTextArea(textarea, {
+                mode: "php",
+                theme: "material-darker",
+                lineNumbers: true,
+                indentUnit: 4,
+                smartIndent: true,
+                matchBrackets: true,
+                autoCloseBrackets: true,
+                styleActiveLine: true,
+                lineWrapping: true,
+                extraKeys: {
+                    "F9": runCode,
+                    "Ctrl-S": saveCode,
+                    "Cmd-S": saveCode
+                }
+            });
+
+            // Set initial value
+            codeEditor.setValue(sampleCodes.php);
+        }
+
+        // Create animated particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 20;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                // Random size between 5 and 15px
+                const size = Math.random() * 10 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+
+                // Random position
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+
+                // Random animation duration between 10 and 25s
+                particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
+
+                // Random delay
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+
+                particlesContainer.appendChild(particle);
+            }
+        }
+
         // Change code sample when language is changed
         document.getElementById('languageSelect').addEventListener('change', function() {
             const language = this.value;
-            document.getElementById('codeEditor').value = sampleCodes[language] || '';
+            const modeMap = {
+                'javascript': 'javascript',
+                'python': 'python',
+                'java': 'text/x-java',
+                'cpp': 'text/x-c++src',
+                'c': 'text/x-csrc',
+                'html': 'htmlmixed',
+                'css': 'css',
+                'php': 'php',
+                'ruby': 'ruby',
+                'go': 'go'
+            };
+
+            codeEditor.setValue(sampleCodes[language] || '');
+            codeEditor.setOption('mode', modeMap[language] || 'javascript');
             updateStatusIndicator('Language changed to ' + language);
+            showNotification('Language switched to ' + language);
         });
 
         // Update status indicator
@@ -1483,14 +1501,25 @@ echo "\n\nTeam lead first skill: " . ($team['lead']?->skills[0] ?? 'Unknown');
             }
         }
 
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = type === 'error' ? 'var(--error)' : 'var(--success)';
+            notification.style.display = 'block';
+
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
         // Run code function
         function runCode() {
             const language = document.getElementById('languageSelect').value;
-            const code = document.getElementById('codeEditor').value;
+            const code = codeEditor.getValue();
             const output = document.getElementById('output');
             const loading = document.getElementById('loading');
             const htmlPreview = document.getElementById('htmlPreview');
-            const statusIndicator = document.getElementById('statusIndicator');
 
             // Show loading spinner
             loading.style.display = 'block';
@@ -1502,6 +1531,7 @@ echo "\n\nTeam lead first skill: " . ($team['lead']?->skills[0] ?? 'Unknown');
             setTimeout(() => {
                 loading.style.display = 'none';
                 updateStatusIndicator('Execution completed', 'success');
+                showNotification('Code executed successfully!');
 
                 if (language === 'html') {
                     // For HTML, show in the iframe
@@ -1549,7 +1579,7 @@ echo "\n\nTeam lead first skill: " . ($team['lead']?->skills[0] ?? 'Unknown');
 
         // Clear code function
         function clearCode() {
-            document.getElementById('codeEditor').value = '';
+            codeEditor.setValue('');
             document.getElementById('output').innerHTML = `
                 <div class="terminal-header">
                     <div class="terminal-dots">
@@ -1563,7 +1593,57 @@ echo "\n\nTeam lead first skill: " . ($team['lead']?->skills[0] ?? 'Unknown');
             `;
             document.getElementById('htmlPreview').style.display = 'none';
             updateStatusIndicator('Ready');
+            showNotification('Editor cleared');
         }
+
+        // Save code function
+        function saveCode() {
+            const code = codeEditor.getValue();
+            const language = document.getElementById('languageSelect').value;
+
+            // Create a blob and download link
+            const blob = new Blob([code], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `code.${getFileExtension(language)}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('Code saved successfully!');
+        }
+
+        // Get file extension based on language
+        function getFileExtension(language) {
+            const extensions = {
+                'javascript': 'js',
+                'python': 'py',
+                'java': 'java',
+                'cpp': 'cpp',
+                'c': 'c',
+                'html': 'html',
+                'css': 'css',
+                'php': 'php',
+                'ruby': 'rb',
+                'go': 'go'
+            };
+            return extensions[language] || 'txt';
+        }
+
+        // Theme toggle functionality
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.className = 'fas fa-sun';
+                showNotification('Dark mode activated');
+            } else {
+                icon.className = 'fas fa-moon';
+                showNotification('Light mode activated');
+            }
+        });
 
         // Add keyboard shortcut (F9 to run code)
         document.addEventListener('keydown', function(e) {
@@ -1576,10 +1656,11 @@ echo "\n\nTeam lead first skill: " . ($team['lead']?->skills[0] ?? 'Unknown');
         // Initialize the app
         window.onload = function() {
             createParticles();
+            initCodeEditor();
 
             // Set focus on code editor after splash screen
             setTimeout(() => {
-                document.getElementById('codeEditor').focus();
+                codeEditor.focus();
             }, 2000);
         };
     </script>
